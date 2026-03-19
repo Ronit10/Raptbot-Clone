@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
 <title>Raptbot Clone</title>
 <style>
   * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b1f3a;
+    color: white;
+    overflow-x: hidden;
+  }
 
   /* ── Modal overlay ── */
   #empModal {
@@ -25,7 +34,7 @@
     margin: 40px auto;
     padding: 36px 40px;
     width: 90%;
-    max-width: 680px;
+    max-width: 700px;
     color: white;
     position: relative;
   }
@@ -65,17 +74,8 @@
   }
 
   .step-tab:last-child { border-right: none; }
-
-  .step-tab.active {
-    background: #2563eb;
-    color: white;
-    font-weight: bold;
-  }
-
-  .step-tab.done {
-    background: #0f5e7a;
-    color: #3dd5f3;
-  }
+  .step-tab.active { background: #2563eb; color: white; font-weight: bold; }
+  .step-tab.done   { background: #0f5e7a; color: #3dd5f3; }
 
   /* ── Form sections ── */
   .form-section { display: none; }
@@ -111,8 +111,15 @@
     letter-spacing: 0.05em;
   }
 
+  .field-group .hint {
+    font-size: 11px;
+    color: #4a6280;
+    margin-top: 3px;
+  }
+
   .field-group input,
-  .field-group select {
+  .field-group select,
+  .field-group textarea {
     padding: 10px 14px;
     border-radius: 8px;
     border: 1px solid #1e4a7a;
@@ -122,19 +129,35 @@
     outline: none;
     transition: border-color 0.2s;
     width: 100%;
+    font-family: Arial, sans-serif;
   }
+
+  .field-group textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .field-group select option { background: #0b1f3a; color: white; }
 
   .field-group input:focus,
-  .field-group select:focus {
-    border-color: #3dd5f3;
+  .field-group select:focus,
+  .field-group textarea:focus { border-color: #3dd5f3; }
+
+  .field-group input::placeholder,
+  .field-group textarea::placeholder { color: #4a6280; }
+
+  /* ── Validation states ── */
+  .field-error   { border-color: #f87171 !important; }
+  .field-success { border-color: #34d399 !important; }
+
+  .error-msg {
+    font-size: 11px;
+    color: #f87171;
+    margin-top: 3px;
+    display: none;
   }
 
-  .field-group input::placeholder { color: #4a6280; }
-
-  /* ── Hidden Salesforce fields ── */
-  input[type="hidden"] { display: none; }
-
-  /* ── Navigation buttons ── */
+  /* ── Nav buttons ── */
   .form-nav {
     display: flex;
     justify-content: space-between;
@@ -156,36 +179,19 @@
     transform: translateY(-1px);
   }
 
-  .btn-prev {
-    background: #1e3a5f;
-    color: #94a3b8;
-  }
-
-  .btn-next {
-    background: #2563eb;
-    color: white;
-  }
-
-  .btn-submit {
-    background: linear-gradient(135deg, #0f5e7a, #2563eb);
-    color: white;
-    font-weight: bold;
-  }
+  .btn-prev   { background: #1e3a5f; color: #94a3b8; }
+  .btn-next   { background: #2563eb; color: white; }
+  .btn-submit { background: linear-gradient(135deg, #0f5e7a, #2563eb); color: white; font-weight: bold; }
 
   /* ── Close button ── */
   .close-btn {
     position: absolute;
-    top: 18px;
-    right: 22px;
-    background: none;
-    border: none;
-    color: #94a3b8;
-    font-size: 22px;
-    cursor: pointer;
-    line-height: 1;
+    top: 18px; right: 22px;
+    background: none; border: none;
+    color: #94a3b8; font-size: 22px;
+    cursor: pointer; line-height: 1;
     transition: color 0.2s;
   }
-
   .close-btn:hover { color: #3dd5f3; }
 
   /* ── Success message ── */
@@ -194,68 +200,42 @@
     text-align: center;
     padding: 40px 20px;
   }
-
-  #successMsg .check-icon {
-    font-size: 56px;
-    margin-bottom: 16px;
-  }
-
-  #successMsg h3 {
-    color: #3dd5f3;
-    font-size: 22px;
-    margin-bottom: 8px;
-  }
-
-  #successMsg p {
-    color: #94a3b8;
-    font-size: 15px;
-  }
-
-  /* ── Existing site styles (unchanged) ── */
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0b1f3a;
-    color: white;
-    overflow-x: hidden;
-  }
+  #successMsg .check-icon { font-size: 56px; margin-bottom: 16px; }
+  #successMsg h3 { color: #3dd5f3; font-size: 22px; margin-bottom: 8px; }
+  #successMsg p  { color: #94a3b8; font-size: 15px; }
 </style>
 </head>
 
 <body>
 
-<!-- ════════════════════════════════════
-     NAVBAR  (unchanged)
-════════════════════════════════════ -->
+<!-- ════════════ NAVBAR (unchanged) ════════════ -->
 <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 60px;">
 
   <div onclick="goHome()" style="cursor:pointer;">
-    <img src="data:image/png;base64,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"
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALsAAABoCAYAAACpOoHr..."
          style="height:50px;">
   </div>
 
   <div style="display:flex; gap:30px; font-size:16px;">
-    <span onclick="goHome()" style="cursor:pointer;">Home</span>
-    <span onclick="goAbout()" style="cursor:pointer;">About</span>
-    <span onclick="goServices()" style="cursor:pointer;">Services</span>
-    <span onclick="goCareers()" style="cursor:pointer;">Careers</span>
-    <span onclick="goResources()" style="cursor:pointer;">Resources</span>
+    <span onclick="goHome()"            style="cursor:pointer;">Home</span>
+    <span onclick="goAbout()"           style="cursor:pointer;">About</span>
+    <span onclick="goServices()"        style="cursor:pointer;">Services</span>
+    <span onclick="goCareers()"         style="cursor:pointer;">Careers</span>
+    <span onclick="goResources()"       style="cursor:pointer;">Resources</span>
     <span onclick="openEmployeeModal()" style="cursor:pointer;">Create Employee</span>
   </div>
 
-  <button onclick="goContact()" style="padding:10px 20px; border-radius:20px; border:none; background:#e6e6fa; color:#333; cursor:pointer;">
+  <button onclick="goContact()"
+    style="padding:10px 20px; border-radius:20px; border:none; background:#e6e6fa; color:#333; cursor:pointer;">
     contact us ↗
   </button>
 </div>
 
-<!-- ════════════════════════════════════
-     HERO SECTION  (unchanged)
-════════════════════════════════════ -->
+<!-- ════════════ HERO (unchanged) ════════════ -->
 <div style="display:flex; justify-content:space-between; align-items:center; padding:60px;
 background:linear-gradient(135deg,#0b1f3a,#0f5e7a); min-height:90vh;">
 
   <div style="max-width:600px;">
-
     <div style="background:#1e3a5f; padding:8px 15px; border-radius:20px; display:inline-block;">
       IT SOLUTIONS FOR A SMARTER FUTURE
     </div>
@@ -270,57 +250,45 @@ background:linear-gradient(135deg,#0b1f3a,#0f5e7a); min-height:90vh;">
       driving innovation and lasting success for your business.
     </p>
 
-    <button onclick="goServices()" style="margin-top:20px; padding:12px 25px; border-radius:25px; border:none; background:#dbeafe; color:#333; cursor:pointer;">
+    <button onclick="goServices()"
+      style="margin-top:20px; padding:12px 25px; border-radius:25px; border:none; background:#dbeafe; color:#333; cursor:pointer;">
       explore more ↗
     </button>
 
     <div style="display:flex; gap:60px; margin-top:50px;">
-      <div onclick="goAbout()" style="cursor:pointer;">
-        <h2>50+</h2>
-        <p style="color:#94a3b8;">happy clients</p>
-      </div>
-      <div onclick="goServices()" style="cursor:pointer;">
-        <h2>75+</h2>
-        <p style="color:#94a3b8;">total projects</p>
-      </div>
-      <div onclick="goResources()" style="cursor:pointer;">
-        <h2>150+</h2>
-        <p style="color:#94a3b8;">certifications</p>
-      </div>
+      <div onclick="goAbout()"     style="cursor:pointer;"><h2>50+</h2><p style="color:#94a3b8;">happy clients</p></div>
+      <div onclick="goServices()"  style="cursor:pointer;"><h2>75+</h2><p style="color:#94a3b8;">total projects</p></div>
+      <div onclick="goResources()" style="cursor:pointer;"><h2>150+</h2><p style="color:#94a3b8;">certifications</p></div>
     </div>
-
   </div>
 
   <div onclick="goHome()" style="cursor:pointer;">
     <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995"
          style="width:500px; border-radius:15px;">
   </div>
-
 </div>
 
-<!-- ════════════════════════════════════
-     CHATBOT  (unchanged)
-════════════════════════════════════ -->
-<div id="chatBox" style="position:fixed; bottom:80px; right:30px; background:white; color:black; padding:15px; border-radius:10px; width:220px; display:none;">
+<!-- ════════════ CHATBOT (unchanged) ════════════ -->
+<div id="chatBox" style="position:fixed; bottom:80px; right:30px; background:white; color:black;
+padding:15px; border-radius:10px; width:220px; display:none;">
   <b>Hi, I'm Rapt AI 👋</b><br>
   <span style="font-size:14px;">How may I help you?</span>
 </div>
 
 <div id="chatBtn" style="position:fixed; bottom:20px; right:30px; width:60px; height:60px;
-background:#2563eb; border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:24px;">
-  💬
-</div>
+background:#2563eb; border-radius:50%; display:flex; justify-content:center; align-items:center;
+cursor:pointer; font-size:24px;">💬</div>
 
-<!-- ════════════════════════════════════
+
+<!-- ══════════════════════════════════════════════
      CREATE EMPLOYEE MODAL
-════════════════════════════════════ -->
+══════════════════════════════════════════════ -->
 <div id="empModal">
   <div class="modal-card">
 
     <button class="close-btn" onclick="closeEmployeeModal()">✕</button>
-
     <h2>Create Employee</h2>
-    <p class="subtitle">Fill in the details below to register a new employee in Salesforce.</p>
+    <p class="subtitle">Complete all sections — data submits directly to Salesforce.</p>
 
     <!-- Step tabs -->
     <div class="steps">
@@ -330,210 +298,299 @@ background:#2563eb; border-radius:50%; display:flex; justify-content:center; ali
       <div class="step-tab"        id="tab4" onclick="goToStep(4)">👨‍👩‍👧 Family</div>
     </div>
 
-    <!-- ── Salesforce Web-to-Lead form ── -->
-    <!--
-      IMPORTANT: Replace the two values below before going live:
-        1. action="..."  →  Your Salesforce Web-to-Lead endpoint
-                            e.g. https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8
-        2. value="..."   →  Your Salesforce Organisation ID (oid)
-                            Found in Setup › Web-to-Lead › Create Web-to-Lead Form
-    -->
+    <!-- Salesforce Web-to-Case form -->
     <form
       id="empForm"
-      action="https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8"
+      action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&orgId=00DdL00000r53wS"
       method="POST"
       onsubmit="handleSubmit(event)"
+      novalidate
     >
-      <!-- Hidden Salesforce required fields -->
-      <input type="hidden" name="oid"     value="YOUR_OID_HERE">
-      <input type="hidden" name="retURL"  value="">   <!-- kept blank; we show success UI instead -->
+      <input type="hidden" name="orgid"  value="00DdL00000r53wS">
+      <input type="hidden" name="retURL" value="https://raptbot-clone.onrender.com">
 
-      <!-- ── STEP 1 · Personal Info ── -->
+      <!-- ════ STEP 1 · PERSONAL INFO ════ -->
       <div class="form-section active" id="section1">
         <h3>Personal Information</h3>
 
         <div class="field-row">
           <div class="field-group">
-            <label>First Name *</label>
-            <input type="text" name="first_name" placeholder="John" required>
+            <label>Employee Name *</label>
+            <input id="00NdL000024Sarf" name="00NdL000024Sarf"
+                   maxlength="20" type="text" placeholder="John Doe" required>
           </div>
           <div class="field-group">
-            <label>Last Name *</label>
-            <input type="text" name="last_name" placeholder="Doe" required>
+            <label>Phone *</label>
+            <input id="00NdL000024SVn8" name="00NdL000024SVn8"
+                   maxlength="40" type="tel" placeholder="+91 98765 43210"
+                   onkeydown="formatPhoneOnEnter(this,event)" required>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
-            <label>Email *</label>
-            <input type="email" name="email" placeholder="john@company.com" required>
+            <label>Personal Email *</label>
+            <input id="00NdL000024SipC" name="00NdL000024SipC"
+                   maxlength="80" type="email" placeholder="john@gmail.com" required>
           </div>
           <div class="field-group">
-            <label>Phone *</label>
-            <input type="tel" name="phone" placeholder="+91 98765 43210" required>
+            <label>Birthday</label>
+            <input id="00NdL000024TKMb" name="00NdL000024TKMb" type="date">
           </div>
         </div>
 
-        <div class="field-row single">
+        <!-- Aadhar + PAN row -->
+        <div class="field-row">
           <div class="field-group">
-            <label>Address</label>
-            <input type="text" name="street" placeholder="123 Main Street, City, State">
+            <label>Aadhar Number *</label>
+            <input id="00NdL000024Tw5K" name="00NdL000024Tw5K"
+                   maxlength="14" type="text"
+                   placeholder="1234-1234-1234"
+                   oninput="formatAadhar(this)"
+                   data-validate="aadhar" required>
+            <span class="hint">Format: 1234-1234-1234</span>
+            <span class="error-msg" id="err-aadhar">Enter a valid Aadhar number (1234-1234-1234)</span>
+          </div>
+          <div class="field-group">
+            <label>PAN Card Number *</label>
+            <input id="00NdL000024UakH" name="00NdL000024UakH"
+                   maxlength="10" type="text"
+                   placeholder="AAAAA0000A"
+                   oninput="formatPAN(this)"
+                   data-validate="pan" required>
+            <span class="hint">Format: AAAAA0000A (5 letters · 4 digits · 1 letter)</span>
+            <span class="error-msg" id="err-pan">Enter a valid PAN number (e.g. ABCDE1234F)</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>Current Address</label>
+            <textarea id="00NdL000024TOOb" name="00NdL000024TOOb"
+                      placeholder="Flat 12, MG Road, Jaipur, Rajasthan" wrap="soft"></textarea>
+          </div>
+          <div class="field-group">
+            <label>Permanent Address</label>
+            <textarea id="00NdL000024Sv02" name="00NdL000024Sv02"
+                      placeholder="Village / Town, District, State" wrap="soft"></textarea>
           </div>
         </div>
       </div>
 
-      <!-- ── STEP 2 · Work Info ── -->
+      <!-- ════ STEP 2 · WORK INFO ════ -->
       <div class="form-section" id="section2">
         <h3>Work Information</h3>
 
         <div class="field-row">
           <div class="field-group">
-            <label>Employee ID *</label>
-            <input type="text" name="00N_EmployeeID" placeholder="EMP-001" required>
+            <label>Day of Joining *</label>
+            <input id="00NdL000024TRW9" name="00NdL000024TRW9" type="date" required>
           </div>
           <div class="field-group">
-            <label>Joining Date *</label>
-            <input type="date" name="00N_JoiningDate" required>
+            <label>Company Email *</label>
+            <input id="00NdL000024Si63" name="00NdL000024Si63"
+                   maxlength="80" type="email" placeholder="john@raptbot.com" required>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
-            <label>Department *</label>
-            <input type="text" name="00N_Department" placeholder="Engineering" required>
+            <label>Employee Department *</label>
+            <select id="00NdL000024TSFJ" name="00NdL000024TSFJ" required>
+              <option value="">-- Select Department --</option>
+              <option value="Salesforce">Salesforce</option>
+              <option value="AWS">AWS</option>
+              <option value="Marketing">Marketing</option>
+              <option value="IT">IT</option>
+            </select>
           </div>
           <div class="field-group">
-            <label>Designation</label>
-            <input type="text" name="title" placeholder="Software Developer">
-          </div>
-        </div>
-
-        <div class="field-row single">
-          <div class="field-group">
-            <label>Company / Organisation</label>
-            <input type="text" name="company" placeholder="Raptbot Technologies">
+            <label>Total Work Experience</label>
+            <input id="00NdL000024TSs1" name="00NdL000024TSs1"
+                   type="text" placeholder="e.g. 3 years 2 months">
           </div>
         </div>
       </div>
 
-      <!-- ── STEP 3 · Bank Info ── -->
+      <!-- ════ STEP 3 · BANK INFO ════ -->
       <div class="form-section" id="section3">
         <h3>Bank Information</h3>
 
         <div class="field-row">
           <div class="field-group">
             <label>Account Holder Name *</label>
-            <input type="text" name="00N_AccountHolder" placeholder="John Doe" required>
+            <input id="00NdL000024TStd" name="00NdL000024TStd"
+                   maxlength="20" type="text" placeholder="John Doe" required>
           </div>
           <div class="field-group">
             <label>Account Number *</label>
-            <input type="text" name="00N_AccountNumber" placeholder="XXXX XXXX XXXX" required>
+            <input id="00NdL000024TAaA" name="00NdL000024TAaA"
+                   type="text" placeholder="XXXX XXXX XXXX XXXX" required>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
-            <label>IFSC Code *</label>
-            <input type="text" name="00N_IFSC" placeholder="SBIN0001234" required>
+            <label>Bank Name *</label>
+            <input id="00NdL000024Sun8" name="00NdL000024Sun8"
+                   maxlength="20" type="text" placeholder="State Bank of India" required>
           </div>
           <div class="field-group">
-            <label>Bank Name</label>
-            <input type="text" name="00N_BankName" placeholder="State Bank of India">
+            <label>IFSC Code *</label>
+            <input id="00NdL000024SoqA" name="00NdL000024SoqA"
+                   maxlength="20" type="text" placeholder="SBIN0001234" required>
+          </div>
+        </div>
+
+        <div class="field-row single">
+          <div class="field-group">
+            <label>Branch Address</label>
+            <input id="00NdL000024SRl9" name="00NdL000024SRl9"
+                   maxlength="30" type="text" placeholder="Branch name &amp; city">
           </div>
         </div>
       </div>
 
-      <!-- ── STEP 4 · Family Info ── -->
+      <!-- ════ STEP 4 · FAMILY INFO ════ -->
       <div class="form-section" id="section4">
         <h3>Family Information</h3>
 
         <div class="field-row">
           <div class="field-group">
             <label>Father's Name</label>
-            <input type="text" name="00N_FatherName" placeholder="Robert Doe">
+            <input id="00NdL000024TZTh" name="00NdL000024TZTh"
+                   maxlength="20" type="text" placeholder="Robert Doe">
           </div>
           <div class="field-group">
-            <label>Mother's Name</label>
-            <input type="text" name="00N_MotherName" placeholder="Mary Doe">
+            <label>Father's Phone</label>
+            <input id="00NdL000024TaO9" name="00NdL000024TaO9"
+                   maxlength="40" type="tel" placeholder="+91 99999 11111"
+                   onkeydown="formatPhoneOnEnter(this,event)">
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
-            <label>Emergency Contact Name</label>
-            <input type="text" name="00N_EmergencyName" placeholder="Jane Doe">
+            <label>Mother's Name</label>
+            <input id="00NdL000024TazF" name="00NdL000024TazF"
+                   maxlength="20" type="text" placeholder="Mary Doe">
           </div>
           <div class="field-group">
-            <label>Emergency Contact Number</label>
-            <input type="tel" name="00N_EmergencyPhone" placeholder="+91 99999 88888">
+            <label>Mother's Phone</label>
+            <input id="00NdL000024Tc6b" name="00NdL000024Tc6b"
+                   maxlength="40" type="tel" placeholder="+91 99999 22222"
+                   onkeydown="formatPhoneOnEnter(this,event)">
           </div>
         </div>
       </div>
 
-      <!-- ── Navigation buttons ── -->
+      <!-- Navigation buttons -->
       <div class="form-nav">
         <button type="button" class="btn-prev" id="prevBtn" onclick="prevStep()" style="display:none;">
           ← Back
         </button>
-
         <div style="flex:1;"></div>
-
-        <button type="button" class="btn-next" id="nextBtn" onclick="nextStep()">
-          Next →
-        </button>
-
-        <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">
-          ✓ Submit to Salesforce
-        </button>
+        <button type="button" class="btn-next"  id="nextBtn"   onclick="nextStep()">Next →</button>
+        <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">✓ Submit to Salesforce</button>
       </div>
 
     </form>
-    <!-- /form -->
 
-    <!-- Success state (shown after submit) -->
+    <!-- Success screen -->
     <div id="successMsg">
       <div class="check-icon">✅</div>
-      <h3>Employee Created!</h3>
-      <p>The record has been submitted to Salesforce successfully.<br>You can close this window now.</p>
-      <button onclick="closeEmployeeModal()" style="margin-top:20px; padding:10px 24px; border-radius:20px; border:none; background:#2563eb; color:white; cursor:pointer;">
+      <h3>Employee Record Created!</h3>
+      <p>The details have been submitted to Salesforce successfully.</p>
+      <button onclick="closeEmployeeModal()"
+        style="margin-top:20px; padding:10px 24px; border-radius:20px; border:none;
+               background:#2563eb; color:white; cursor:pointer; font-size:14px;">
         Close
       </button>
     </div>
 
   </div>
 </div>
-<!-- /modal -->
 
 
-<!-- ════════════════════════════════════
-     JAVASCRIPT
-════════════════════════════════════ -->
+<!-- ════════════ JAVASCRIPT ════════════ -->
 <script>
-  /* ── Navigation links (unchanged) ── */
-  function goHome()     { window.location.href = "https://uat.raptbot.com/home/"; }
-  function goAbout()    { window.location.href = "https://uat.raptbot.com/about/"; }
-  function goServices() { window.location.href = "https://uat.raptbot.com/services/"; }
-  function goCareers()  { window.location.href = "https://uat.raptbot.com/careers/"; }
-  function goResources(){ window.location.href = "https://uat.raptbot.com/resources/"; }
-  function goContact()  { window.location.href = "https://uat.raptbot.com/contact/"; }
+  /* ── Site navigation ── */
+  function goHome()      { window.location.href = "https://uat.raptbot.com/home/"; }
+  function goAbout()     { window.location.href = "https://uat.raptbot.com/about/"; }
+  function goServices()  { window.location.href = "https://uat.raptbot.com/services/"; }
+  function goCareers()   { window.location.href = "https://uat.raptbot.com/careers/"; }
+  function goResources() { window.location.href = "https://uat.raptbot.com/resources/"; }
+  function goContact()   { window.location.href = "https://uat.raptbot.com/contact/"; }
 
-  /* ── Chat toggle (unchanged) ── */
+  /* ── Chat bubble ── */
   document.getElementById("chatBtn").onclick = () => {
     const c = document.getElementById("chatBox");
-    c.style.display = (c.style.display === "none") ? "block" : "none";
+    c.style.display = c.style.display === "none" ? "block" : "none";
   };
 
-  /* ══════════════════════════════════
-     EMPLOYEE MODAL LOGIC
-  ══════════════════════════════════ */
+  /* ════════════════════════════
+     AADHAR auto-formatter
+     Enforces: 1234-1234-1234
+  ════════════════════════════ */
+  function formatAadhar(el) {
+    // Strip everything except digits
+    let digits = el.value.replace(/\D/g, "").slice(0, 12);
+    // Insert dashes after every 4th digit
+    let formatted = digits.replace(/(\d{4})(?=\d)/g, "$1-");
+    el.value = formatted;
+
+    // Live validation
+    const valid = /^\d{4}-\d{4}-\d{4}$/.test(formatted);
+    el.classList.toggle("field-error",   !valid && digits.length === 12);
+    el.classList.toggle("field-success",  valid);
+    document.getElementById("err-aadhar").style.display =
+      (!valid && digits.length === 12) ? "block" : "none";
+  }
+
+  /* ════════════════════════════
+     PAN auto-formatter
+     Enforces: AAAAA0000A
+     (5 uppercase letters · 4 digits · 1 uppercase letter)
+  ════════════════════════════ */
+  function formatPAN(el) {
+    // Keep only alphanumeric, uppercase
+    let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+    el.value = raw;
+
+    const valid = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(raw);
+    el.classList.toggle("field-error",   !valid && raw.length === 10);
+    el.classList.toggle("field-success",  valid);
+    document.getElementById("err-pan").style.display =
+      (!valid && raw.length === 10) ? "block" : "none";
+  }
+
+  /* ════════════════════════════
+     Phone formatter on Enter
+  ════════════════════════════ */
+  function formatPhoneOnEnter(el, event) {
+    if (event.key === "Enter") {
+      const digits = el.value.replace(/\D/g, "");
+      if (digits.length === 10) el.value = digits.replace(/(\d{5})(\d{5})/, "$1 $2");
+    }
+  }
+
+  /* ════════════════════════════
+     MODAL logic
+  ════════════════════════════ */
   let currentStep = 1;
-  const TOTAL_STEPS = 4;
+  const TOTAL = 4;
 
   function openEmployeeModal() {
     currentStep = 1;
-    renderStep();
-    document.getElementById("successMsg").style.display = "none";
+    document.getElementById("empForm").reset();
+    // Clear all validation states
+    document.querySelectorAll(".field-error, .field-success").forEach(el => {
+      el.classList.remove("field-error", "field-success");
+    });
+    document.querySelectorAll(".error-msg").forEach(el => el.style.display = "none");
     document.getElementById("empForm").style.display    = "block";
+    document.getElementById("successMsg").style.display = "none";
+    renderStep();
     document.getElementById("empModal").style.display   = "block";
     document.body.style.overflow = "hidden";
   }
@@ -549,89 +606,95 @@ background:#2563eb; border-radius:50%; display:flex; justify-content:center; ali
   });
 
   function renderStep() {
-    for (let i = 1; i <= TOTAL_STEPS; i++) {
-      const tab  = document.getElementById("tab" + i);
-      const sec  = document.getElementById("section" + i);
-
-      sec.classList.toggle("active", i === currentStep);
-
+    for (let i = 1; i <= TOTAL; i++) {
+      document.getElementById("section" + i).classList.toggle("active", i === currentStep);
+      const tab = document.getElementById("tab" + i);
       tab.classList.remove("active", "done");
       if (i === currentStep) tab.classList.add("active");
       else if (i < currentStep) tab.classList.add("done");
     }
-
-    document.getElementById("prevBtn").style.display   = currentStep > 1              ? "inline-block" : "none";
-    document.getElementById("nextBtn").style.display   = currentStep < TOTAL_STEPS    ? "inline-block" : "none";
-    document.getElementById("submitBtn").style.display = currentStep === TOTAL_STEPS  ? "inline-block" : "none";
+    document.getElementById("prevBtn").style.display   = currentStep > 1       ? "inline-block" : "none";
+    document.getElementById("nextBtn").style.display   = currentStep < TOTAL   ? "inline-block" : "none";
+    document.getElementById("submitBtn").style.display = currentStep === TOTAL ? "inline-block" : "none";
   }
 
+  /* Jump only to already-completed steps */
   function goToStep(n) {
-    /* Only allow jumping to completed steps or the current one */
-    if (n <= currentStep) {
-      currentStep = n;
-      renderStep();
-    }
+    if (n < currentStep) { currentStep = n; renderStep(); }
   }
 
-  function nextStep() {
-    /* Validate required fields in current section before advancing */
-    const section = document.getElementById("section" + currentStep);
+  /* ── Validate a single section ── */
+  function validateSection(step) {
+    const section  = document.getElementById("section" + step);
     const required = section.querySelectorAll("[required]");
     let valid = true;
 
     required.forEach(el => {
+      el.classList.remove("field-error");
+
+      // Empty check
       if (!el.value.trim()) {
-        el.style.borderColor = "#f87171";
+        el.classList.add("field-error");
         valid = false;
-      } else {
-        el.style.borderColor = "#1e4a7a";
+        return;
+      }
+
+      // Aadhar pattern check
+      if (el.dataset.validate === "aadhar") {
+        if (!/^\d{4}-\d{4}-\d{4}$/.test(el.value)) {
+          el.classList.add("field-error");
+          document.getElementById("err-aadhar").style.display = "block";
+          valid = false;
+        } else {
+          document.getElementById("err-aadhar").style.display = "none";
+        }
+      }
+
+      // PAN pattern check
+      if (el.dataset.validate === "pan") {
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(el.value)) {
+          el.classList.add("field-error");
+          document.getElementById("err-pan").style.display = "block";
+          valid = false;
+        } else {
+          document.getElementById("err-pan").style.display = "none";
+        }
       }
     });
 
-    if (!valid) {
-      required.forEach(el => {
-        el.addEventListener("input", () => {
-          el.style.borderColor = el.value.trim() ? "#1e4a7a" : "#f87171";
-        }, { once: false });
-      });
-      return;
-    }
+    return valid;
+  }
 
-    if (currentStep < TOTAL_STEPS) {
-      currentStep++;
-      renderStep();
-    }
+  function nextStep() {
+    if (!validateSection(currentStep)) return;
+    if (currentStep < TOTAL) { currentStep++; renderStep(); }
   }
 
   function prevStep() {
-    if (currentStep > 1) {
-      currentStep--;
-      renderStep();
-    }
+    if (currentStep > 1) { currentStep--; renderStep(); }
   }
 
+  /* Clear error on input */
+  document.getElementById("empForm").addEventListener("input", function(e) {
+    if (!e.target.dataset.validate) {          // Aadhar/PAN have their own handlers
+      e.target.classList.remove("field-error");
+    }
+  });
+
+  /* ── Submit to Salesforce (no page redirect) ── */
   function handleSubmit(e) {
     e.preventDefault();
+    if (!validateSection(currentStep)) return;
 
     const form = document.getElementById("empForm");
 
-    /* Submit to Salesforce via fetch (no page redirect) */
     fetch(form.action, {
-      method: "POST",
-      mode: "no-cors",          /* Salesforce doesn't allow CORS; no-cors sends it silently */
-      body: new FormData(form)
-    }).then(() => {
+      method : "POST",
+      mode   : "no-cors",   // Salesforce doesn't allow CORS; data still goes through
+      body   : new FormData(form)
+    }).finally(() => {
       form.style.display = "none";
       document.getElementById("successMsg").style.display = "block";
-      form.reset();
-      currentStep = 1;
-    }).catch(() => {
-      /* Even on network quirks, no-cors often "succeeds" with opaque response.
-         Show success — actual errors will surface in Salesforce logs. */
-      form.style.display = "none";
-      document.getElementById("successMsg").style.display = "block";
-      form.reset();
-      currentStep = 1;
     });
   }
 </script>
