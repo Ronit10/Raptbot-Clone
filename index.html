@@ -54,7 +54,6 @@
   /* ── Step tabs ── */
   .steps {
     display: flex;
-    gap: 0;
     margin-bottom: 30px;
     border-radius: 10px;
     overflow: hidden;
@@ -114,7 +113,7 @@
   .field-group .hint {
     font-size: 11px;
     color: #4a6280;
-    margin-top: 3px;
+    margin-top: 2px;
   }
 
   .field-group input,
@@ -153,16 +152,16 @@
   .error-msg {
     font-size: 11px;
     color: #f87171;
-    margin-top: 3px;
+    margin-top: 2px;
     display: none;
   }
 
   /* ── Nav buttons ── */
   .form-nav {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-top: 28px;
+    gap: 10px;
   }
 
   .btn-prev, .btn-next, .btn-submit {
@@ -181,7 +180,11 @@
 
   .btn-prev   { background: #1e3a5f; color: #94a3b8; }
   .btn-next   { background: #2563eb; color: white; }
-  .btn-submit { background: linear-gradient(135deg, #0f5e7a, #2563eb); color: white; font-weight: bold; }
+  .btn-submit {
+    background: linear-gradient(135deg, #0f5e7a, #2563eb);
+    color: white;
+    font-weight: bold;
+  }
 
   /* ── Close button ── */
   .close-btn {
@@ -193,24 +196,13 @@
     transition: color 0.2s;
   }
   .close-btn:hover { color: #3dd5f3; }
-
-  /* ── Success message ── */
-  #successMsg {
-    display: none;
-    text-align: center;
-    padding: 40px 20px;
-  }
-  #successMsg .check-icon { font-size: 56px; margin-bottom: 16px; }
-  #successMsg h3 { color: #3dd5f3; font-size: 22px; margin-bottom: 8px; }
-  #successMsg p  { color: #94a3b8; font-size: 15px; }
 </style>
 </head>
 
 <body>
 
-<!-- ════════════ NAVBAR (unchanged) ════════════ -->
+<!-- ════════════ NAVBAR ════════════ -->
 <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 60px;">
-
   <div onclick="goHome()" style="cursor:pointer;">
     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALsAAABoCAYAAACpOoHr..."
          style="height:50px;">
@@ -231,7 +223,7 @@
   </button>
 </div>
 
-<!-- ════════════ HERO (unchanged) ════════════ -->
+<!-- ════════════ HERO ════════════ -->
 <div style="display:flex; justify-content:space-between; align-items:center; padding:60px;
 background:linear-gradient(135deg,#0b1f3a,#0f5e7a); min-height:90vh;">
 
@@ -268,7 +260,7 @@ background:linear-gradient(135deg,#0b1f3a,#0f5e7a); min-height:90vh;">
   </div>
 </div>
 
-<!-- ════════════ CHATBOT (unchanged) ════════════ -->
+<!-- ════════════ CHATBOT ════════════ -->
 <div id="chatBox" style="position:fixed; bottom:80px; right:30px; background:white; color:black;
 padding:15px; border-radius:10px; width:220px; display:none;">
   <b>Hi, I'm Rapt AI 👋</b><br>
@@ -280,15 +272,15 @@ background:#2563eb; border-radius:50%; display:flex; justify-content:center; ali
 cursor:pointer; font-size:24px;">💬</div>
 
 
-<!-- ══════════════════════════════════════════════
+<!-- ══════════════════════════════════════
      CREATE EMPLOYEE MODAL
-══════════════════════════════════════════════ -->
+══════════════════════════════════════ -->
 <div id="empModal">
   <div class="modal-card">
 
     <button class="close-btn" onclick="closeEmployeeModal()">✕</button>
     <h2>Create Employee</h2>
-    <p class="subtitle">Complete all sections — data submits directly to Salesforce.</p>
+    <p class="subtitle">Complete all sections and submit — data goes directly to Salesforce.</p>
 
     <!-- Step tabs -->
     <div class="steps">
@@ -298,105 +290,95 @@ cursor:pointer; font-size:24px;">💬</div>
       <div class="step-tab"        id="tab4" onclick="goToStep(4)">👨‍👩‍👧 Family</div>
     </div>
 
-    <!-- Salesforce Web-to-Case form -->
+    <!-- ══ SALESFORCE FORM — direct POST (same as the working standalone form) ══ -->
     <form
       id="empForm"
       action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&orgId=00DdL00000r53wS"
       method="POST"
-      onsubmit="handleSubmit(event)"
-      novalidate
+      onsubmit="return handleSubmit()"
     >
+      <!-- Required Salesforce hidden fields -->
       <input type="hidden" name="orgid"  value="00DdL00000r53wS">
       <input type="hidden" name="retURL" value="https://raptbot-clone.onrender.com">
 
-      <!-- ════ STEP 1 · PERSONAL INFO ════ -->
+      <!-- ════ STEP 1 · PERSONAL ════ -->
       <div class="form-section active" id="section1">
         <h3>Personal Information</h3>
 
         <div class="field-row">
           <div class="field-group">
             <label>Employee Name *</label>
-            <input id="00NdL000024Sarf" name="00NdL000024Sarf"
-                   maxlength="20" type="text" placeholder="John Doe" required>
+            <input name="00NdL000024Sarf" maxlength="20" type="text"
+                   placeholder="John Doe" required>
           </div>
           <div class="field-group">
             <label>Phone *</label>
-            <input id="00NdL000024SVn8" name="00NdL000024SVn8"
-                   maxlength="40" type="tel" placeholder="+91 98765 43210"
-                   onkeydown="formatPhoneOnEnter(this,event)" required>
+            <input name="00NdL000024SVn8" maxlength="40" type="tel"
+                   placeholder="+91 98765 43210" required>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label>Personal Email *</label>
-            <input id="00NdL000024SipC" name="00NdL000024SipC"
-                   maxlength="80" type="email" placeholder="john@gmail.com" required>
+            <input name="00NdL000024SipC" maxlength="80" type="email"
+                   placeholder="john@gmail.com" required>
           </div>
           <div class="field-group">
             <label>Birthday</label>
-            <input id="00NdL000024TKMb" name="00NdL000024TKMb" type="date">
+            <input name="00NdL000024TKMb" type="date">
           </div>
         </div>
 
-        <!-- Aadhar + PAN row -->
         <div class="field-row">
           <div class="field-group">
             <label>Aadhar Number *</label>
-            <input id="00NdL000024Tw5K" name="00NdL000024Tw5K"
-                   maxlength="14" type="text"
-                   placeholder="1234-1234-1234"
-                   oninput="formatAadhar(this)"
-                   data-validate="aadhar" required>
+            <input id="aadharInput" name="00NdL000024Tw5K" maxlength="14" type="text"
+                   placeholder="1234-1234-1234" oninput="formatAadhar(this)" required>
             <span class="hint">Format: 1234-1234-1234</span>
-            <span class="error-msg" id="err-aadhar">Enter a valid Aadhar number (1234-1234-1234)</span>
+            <span class="error-msg" id="err-aadhar">Enter a valid Aadhar (1234-1234-1234)</span>
           </div>
           <div class="field-group">
             <label>PAN Card Number *</label>
-            <input id="00NdL000024UakH" name="00NdL000024UakH"
-                   maxlength="10" type="text"
-                   placeholder="AAAAA0000A"
-                   oninput="formatPAN(this)"
-                   data-validate="pan" required>
-            <span class="hint">Format: AAAAA0000A (5 letters · 4 digits · 1 letter)</span>
-            <span class="error-msg" id="err-pan">Enter a valid PAN number (e.g. ABCDE1234F)</span>
+            <input id="panInput" name="00NdL000024UakH" maxlength="10" type="text"
+                   placeholder="AAAAA0000A" oninput="formatPAN(this)" required>
+            <span class="hint">Format: AAAAA0000A</span>
+            <span class="error-msg" id="err-pan">Enter a valid PAN (e.g. ABCDE1234F)</span>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label>Current Address</label>
-            <textarea id="00NdL000024TOOb" name="00NdL000024TOOb"
-                      placeholder="Flat 12, MG Road, Jaipur, Rajasthan" wrap="soft"></textarea>
+            <textarea name="00NdL000024TOOb" placeholder="Flat 12, MG Road, Jaipur"></textarea>
           </div>
           <div class="field-group">
             <label>Permanent Address</label>
-            <textarea id="00NdL000024Sv02" name="00NdL000024Sv02"
-                      placeholder="Village / Town, District, State" wrap="soft"></textarea>
+            <textarea name="00NdL000024Sv02" placeholder="Village / Town, District, State"></textarea>
           </div>
         </div>
       </div>
 
-      <!-- ════ STEP 2 · WORK INFO ════ -->
+      <!-- ════ STEP 2 · WORK ════ -->
       <div class="form-section" id="section2">
         <h3>Work Information</h3>
 
         <div class="field-row">
           <div class="field-group">
             <label>Day of Joining *</label>
-            <input id="00NdL000024TRW9" name="00NdL000024TRW9" type="date" required>
+            <input name="00NdL000024TRW9" type="date" required>
           </div>
           <div class="field-group">
             <label>Company Email *</label>
-            <input id="00NdL000024Si63" name="00NdL000024Si63"
-                   maxlength="80" type="email" placeholder="john@raptbot.com" required>
+            <input name="00NdL000024Si63" maxlength="80" type="email"
+                   placeholder="john@raptbot.com" required>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label>Employee Department *</label>
-            <select id="00NdL000024TSFJ" name="00NdL000024TSFJ" required>
+            <select name="00NdL000024TSFJ" required>
               <option value="">-- Select Department --</option>
               <option value="Salesforce">Salesforce</option>
               <option value="AWS">AWS</option>
@@ -406,107 +388,94 @@ cursor:pointer; font-size:24px;">💬</div>
           </div>
           <div class="field-group">
             <label>Total Work Experience</label>
-            <input id="00NdL000024TSs1" name="00NdL000024TSs1"
-                   type="text" placeholder="e.g. 3 years 2 months">
+            <input name="00NdL000024TSs1" type="text" placeholder="e.g. 3 years 2 months">
           </div>
         </div>
       </div>
 
-      <!-- ════ STEP 3 · BANK INFO ════ -->
+      <!-- ════ STEP 3 · BANK ════ -->
       <div class="form-section" id="section3">
         <h3>Bank Information</h3>
 
         <div class="field-row">
           <div class="field-group">
             <label>Account Holder Name *</label>
-            <input id="00NdL000024TStd" name="00NdL000024TStd"
-                   maxlength="20" type="text" placeholder="John Doe" required>
+            <input name="00NdL000024TStd" maxlength="20" type="text"
+                   placeholder="John Doe" required>
           </div>
           <div class="field-group">
             <label>Account Number *</label>
-            <input id="00NdL000024TAaA" name="00NdL000024TAaA"
-                   type="text" placeholder="XXXX XXXX XXXX XXXX" required>
+            <input name="00NdL000024TAaA" type="text"
+                   placeholder="XXXX XXXX XXXX XXXX" required>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label>Bank Name *</label>
-            <input id="00NdL000024Sun8" name="00NdL000024Sun8"
-                   maxlength="20" type="text" placeholder="State Bank of India" required>
+            <input name="00NdL000024Sun8" maxlength="20" type="text"
+                   placeholder="State Bank of India" required>
           </div>
           <div class="field-group">
             <label>IFSC Code *</label>
-            <input id="00NdL000024SoqA" name="00NdL000024SoqA"
-                   maxlength="20" type="text" placeholder="SBIN0001234" required>
+            <input name="00NdL000024SoqA" maxlength="20" type="text"
+                   placeholder="SBIN0001234" required>
           </div>
         </div>
 
         <div class="field-row single">
           <div class="field-group">
             <label>Branch Address</label>
-            <input id="00NdL000024SRl9" name="00NdL000024SRl9"
-                   maxlength="30" type="text" placeholder="Branch name &amp; city">
+            <input name="00NdL000024SRl9" maxlength="30" type="text"
+                   placeholder="Branch name &amp; city">
           </div>
         </div>
       </div>
 
-      <!-- ════ STEP 4 · FAMILY INFO ════ -->
+      <!-- ════ STEP 4 · FAMILY ════ -->
       <div class="form-section" id="section4">
         <h3>Family Information</h3>
 
         <div class="field-row">
           <div class="field-group">
             <label>Father's Name</label>
-            <input id="00NdL000024TZTh" name="00NdL000024TZTh"
-                   maxlength="20" type="text" placeholder="Robert Doe">
+            <input name="00NdL000024TZTh" maxlength="20" type="text" placeholder="Robert Doe">
           </div>
           <div class="field-group">
             <label>Father's Phone</label>
-            <input id="00NdL000024TaO9" name="00NdL000024TaO9"
-                   maxlength="40" type="tel" placeholder="+91 99999 11111"
-                   onkeydown="formatPhoneOnEnter(this,event)">
+            <input name="00NdL000024TaO9" maxlength="40" type="tel" placeholder="+91 99999 11111">
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label>Mother's Name</label>
-            <input id="00NdL000024TazF" name="00NdL000024TazF"
-                   maxlength="20" type="text" placeholder="Mary Doe">
+            <input name="00NdL000024TazF" maxlength="20" type="text" placeholder="Mary Doe">
           </div>
           <div class="field-group">
             <label>Mother's Phone</label>
-            <input id="00NdL000024Tc6b" name="00NdL000024Tc6b"
-                   maxlength="40" type="tel" placeholder="+91 99999 22222"
-                   onkeydown="formatPhoneOnEnter(this,event)">
+            <input name="00NdL000024Tc6b" maxlength="40" type="tel" placeholder="+91 99999 22222">
           </div>
         </div>
       </div>
 
-      <!-- Navigation buttons -->
+      <!-- Navigation -->
       <div class="form-nav">
-        <button type="button" class="btn-prev" id="prevBtn" onclick="prevStep()" style="display:none;">
-          ← Back
-        </button>
+        <button type="button" class="btn-prev" id="prevBtn"
+                onclick="prevStep()" style="display:none;">← Back</button>
+
         <div style="flex:1;"></div>
-        <button type="button" class="btn-next"  id="nextBtn"   onclick="nextStep()">Next →</button>
-        <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">✓ Submit to Salesforce</button>
+
+        <button type="button" class="btn-next" id="nextBtn"
+                onclick="nextStep()">Next →</button>
+
+        <!-- This is a real submit button — triggers native form POST to Salesforce -->
+        <button type="submit" class="btn-submit" id="submitBtn"
+                style="display:none;">✓ Submit to Salesforce</button>
       </div>
 
     </form>
-
-    <!-- Success screen -->
-    <div id="successMsg">
-      <div class="check-icon">✅</div>
-      <h3>Employee Record Created!</h3>
-      <p>The details have been submitted to Salesforce successfully.</p>
-      <button onclick="closeEmployeeModal()"
-        style="margin-top:20px; padding:10px 24px; border-radius:20px; border:none;
-               background:#2563eb; color:white; cursor:pointer; font-size:14px;">
-        Close
-      </button>
-    </div>
+    <!-- /form -->
 
   </div>
 </div>
@@ -514,7 +483,7 @@ cursor:pointer; font-size:24px;">💬</div>
 
 <!-- ════════════ JAVASCRIPT ════════════ -->
 <script>
-  /* ── Site navigation ── */
+  /* ── Navigation ── */
   function goHome()      { window.location.href = "https://uat.raptbot.com/home/"; }
   function goAbout()     { window.location.href = "https://uat.raptbot.com/about/"; }
   function goServices()  { window.location.href = "https://uat.raptbot.com/services/"; }
@@ -528,33 +497,25 @@ cursor:pointer; font-size:24px;">💬</div>
     c.style.display = c.style.display === "none" ? "block" : "none";
   };
 
-  /* ════════════════════════════
-     AADHAR auto-formatter
-     Enforces: 1234-1234-1234
-  ════════════════════════════ */
+  /* ══════════════════════════════
+     AADHAR formatter  →  1234-1234-1234
+  ══════════════════════════════ */
   function formatAadhar(el) {
-    // Strip everything except digits
     let digits = el.value.replace(/\D/g, "").slice(0, 12);
-    // Insert dashes after every 4th digit
-    let formatted = digits.replace(/(\d{4})(?=\d)/g, "$1-");
-    el.value = formatted;
+    el.value   = digits.replace(/(\d{4})(?=\d)/g, "$1-");
 
-    // Live validation
-    const valid = /^\d{4}-\d{4}-\d{4}$/.test(formatted);
+    const valid = /^\d{4}-\d{4}-\d{4}$/.test(el.value);
     el.classList.toggle("field-error",   !valid && digits.length === 12);
     el.classList.toggle("field-success",  valid);
     document.getElementById("err-aadhar").style.display =
       (!valid && digits.length === 12) ? "block" : "none";
   }
 
-  /* ════════════════════════════
-     PAN auto-formatter
-     Enforces: AAAAA0000A
-     (5 uppercase letters · 4 digits · 1 uppercase letter)
-  ════════════════════════════ */
+  /* ══════════════════════════════
+     PAN formatter  →  AAAAA0000A
+  ══════════════════════════════ */
   function formatPAN(el) {
-    // Keep only alphanumeric, uppercase
-    let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+    let raw  = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
     el.value = raw;
 
     const valid = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(raw);
@@ -564,34 +525,22 @@ cursor:pointer; font-size:24px;">💬</div>
       (!valid && raw.length === 10) ? "block" : "none";
   }
 
-  /* ════════════════════════════
-     Phone formatter on Enter
-  ════════════════════════════ */
-  function formatPhoneOnEnter(el, event) {
-    if (event.key === "Enter") {
-      const digits = el.value.replace(/\D/g, "");
-      if (digits.length === 10) el.value = digits.replace(/(\d{5})(\d{5})/, "$1 $2");
-    }
-  }
-
-  /* ════════════════════════════
-     MODAL logic
-  ════════════════════════════ */
+  /* ══════════════════════════════
+     MODAL
+  ══════════════════════════════ */
   let currentStep = 1;
   const TOTAL = 4;
 
   function openEmployeeModal() {
     currentStep = 1;
     document.getElementById("empForm").reset();
-    // Clear all validation states
-    document.querySelectorAll(".field-error, .field-success").forEach(el => {
-      el.classList.remove("field-error", "field-success");
-    });
+    // Clear validation highlights
+    document.querySelectorAll(".field-error, .field-success").forEach(el =>
+      el.classList.remove("field-error", "field-success")
+    );
     document.querySelectorAll(".error-msg").forEach(el => el.style.display = "none");
-    document.getElementById("empForm").style.display    = "block";
-    document.getElementById("successMsg").style.display = "none";
     renderStep();
-    document.getElementById("empModal").style.display   = "block";
+    document.getElementById("empModal").style.display = "block";
     document.body.style.overflow = "hidden";
   }
 
@@ -610,20 +559,20 @@ cursor:pointer; font-size:24px;">💬</div>
       document.getElementById("section" + i).classList.toggle("active", i === currentStep);
       const tab = document.getElementById("tab" + i);
       tab.classList.remove("active", "done");
-      if (i === currentStep) tab.classList.add("active");
-      else if (i < currentStep) tab.classList.add("done");
+      if (i === currentStep)      tab.classList.add("active");
+      else if (i < currentStep)   tab.classList.add("done");
     }
     document.getElementById("prevBtn").style.display   = currentStep > 1       ? "inline-block" : "none";
     document.getElementById("nextBtn").style.display   = currentStep < TOTAL   ? "inline-block" : "none";
     document.getElementById("submitBtn").style.display = currentStep === TOTAL ? "inline-block" : "none";
   }
 
-  /* Jump only to already-completed steps */
+  /* Allow jumping back to completed steps only */
   function goToStep(n) {
     if (n < currentStep) { currentStep = n; renderStep(); }
   }
 
-  /* ── Validate a single section ── */
+  /* ── Validate required fields in current section ── */
   function validateSection(step) {
     const section  = document.getElementById("section" + step);
     const required = section.querySelectorAll("[required]");
@@ -632,32 +581,27 @@ cursor:pointer; font-size:24px;">💬</div>
     required.forEach(el => {
       el.classList.remove("field-error");
 
-      // Empty check
       if (!el.value.trim()) {
         el.classList.add("field-error");
         valid = false;
         return;
       }
 
-      // Aadhar pattern check
-      if (el.dataset.validate === "aadhar") {
+      // Aadhar format
+      if (el.id === "aadharInput") {
         if (!/^\d{4}-\d{4}-\d{4}$/.test(el.value)) {
           el.classList.add("field-error");
           document.getElementById("err-aadhar").style.display = "block";
           valid = false;
-        } else {
-          document.getElementById("err-aadhar").style.display = "none";
         }
       }
 
-      // PAN pattern check
-      if (el.dataset.validate === "pan") {
+      // PAN format
+      if (el.id === "panInput") {
         if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(el.value)) {
           el.classList.add("field-error");
           document.getElementById("err-pan").style.display = "block";
           valid = false;
-        } else {
-          document.getElementById("err-pan").style.display = "none";
         }
       }
     });
@@ -674,28 +618,23 @@ cursor:pointer; font-size:24px;">💬</div>
     if (currentStep > 1) { currentStep--; renderStep(); }
   }
 
-  /* Clear error on input */
+  /* Clear red border on typing */
   document.getElementById("empForm").addEventListener("input", function(e) {
-    if (!e.target.dataset.validate) {          // Aadhar/PAN have their own handlers
+    if (e.target.id !== "aadharInput" && e.target.id !== "panInput") {
       e.target.classList.remove("field-error");
     }
   });
 
-  /* ── Submit to Salesforce (no page redirect) ── */
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!validateSection(currentStep)) return;
-
-    const form = document.getElementById("empForm");
-
-    fetch(form.action, {
-      method : "POST",
-      mode   : "no-cors",   // Salesforce doesn't allow CORS; data still goes through
-      body   : new FormData(form)
-    }).finally(() => {
-      form.style.display = "none";
-      document.getElementById("successMsg").style.display = "block";
-    });
+  /*
+    handleSubmit() — called by form's onsubmit.
+    Validates last step, then returns TRUE so the browser
+    does a real native POST to Salesforce (exactly like the
+    standalone working form). Salesforce saves the record
+    and redirects back to retURL.
+  */
+  function handleSubmit() {
+    if (!validateSection(currentStep)) return false; // block submit if invalid
+    return true; // allow native form POST → Salesforce saves the record
   }
 </script>
 
