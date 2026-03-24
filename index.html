@@ -100,7 +100,7 @@
   .field-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
   }
 
   .field-group label {
@@ -113,7 +113,6 @@
   .field-group .hint {
     font-size: 11px;
     color: #4a6280;
-    margin-top: 2px;
   }
 
   .field-group input,
@@ -152,8 +151,8 @@
   .error-msg {
     font-size: 11px;
     color: #f87171;
-    margin-top: 2px;
     display: none;
+    margin-top: 1px;
   }
 
   /* ── Nav buttons ── */
@@ -180,11 +179,7 @@
 
   .btn-prev   { background: #1e3a5f; color: #94a3b8; }
   .btn-next   { background: #2563eb; color: white; }
-  .btn-submit {
-    background: linear-gradient(135deg, #0f5e7a, #2563eb);
-    color: white;
-    font-weight: bold;
-  }
+  .btn-submit { background: linear-gradient(135deg, #0f5e7a, #2563eb); color: white; font-weight: bold; }
 
   /* ── Close button ── */
   .close-btn {
@@ -282,7 +277,6 @@ cursor:pointer; font-size:24px;">💬</div>
     <h2>Create Employee</h2>
     <p class="subtitle">Complete all sections and submit — data goes directly to Salesforce.</p>
 
-    <!-- Step tabs -->
     <div class="steps">
       <div class="step-tab active" id="tab1" onclick="goToStep(1)">👤 Personal</div>
       <div class="step-tab"        id="tab2" onclick="goToStep(2)">💼 Work</div>
@@ -290,14 +284,12 @@ cursor:pointer; font-size:24px;">💬</div>
       <div class="step-tab"        id="tab4" onclick="goToStep(4)">👨‍👩‍👧 Family</div>
     </div>
 
-    <!-- ══ SALESFORCE FORM — direct POST (same as the working standalone form) ══ -->
     <form
       id="empForm"
       action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8&orgId=00DdL00000r53wS"
       method="POST"
       onsubmit="return handleSubmit()"
     >
-      <!-- Required Salesforce hidden fields -->
       <input type="hidden" name="orgid"  value="00DdL00000r53wS">
       <input type="hidden" name="retURL" value="https://raptbot-clone.onrender.com">
 
@@ -306,24 +298,38 @@ cursor:pointer; font-size:24px;">💬</div>
         <h3>Personal Information</h3>
 
         <div class="field-row">
+          <!-- Employee Name: letters + spaces only -->
           <div class="field-group">
             <label>Employee Name *</label>
-            <input name="00NdL000024Sarf" maxlength="20" type="text"
-                   placeholder="John Doe" required>
+            <input id="empName" name="00NdL000024Sarf" maxlength="20" type="text"
+                   placeholder="John Doe"
+                   data-rule="name" required>
+            <span class="error-msg" id="err-empName">Name must contain only letters and spaces</span>
           </div>
+
+          <!-- Phone: exactly 10 digits -->
           <div class="field-group">
             <label>Phone *</label>
-            <input name="00NdL000024SVn8" maxlength="40" type="tel"
-                   placeholder="+91 98765 43210" required>
+            <input id="empPhone" name="00NdL000024SVn8" maxlength="10" type="tel"
+                   placeholder="9876543210"
+                   data-rule="phone" required>
+            <span class="hint">10-digit mobile number</span>
+            <span class="error-msg" id="err-empPhone">Enter a valid 10-digit phone number</span>
           </div>
         </div>
 
         <div class="field-row">
+          <!-- Personal Email: must end with @gmail.com -->
           <div class="field-group">
             <label>Personal Email *</label>
-            <input name="00NdL000024SipC" maxlength="80" type="email"
-                   placeholder="john@gmail.com" required>
+            <input id="personalEmail" name="00NdL000024SipC" maxlength="80" type="text"
+                   placeholder="john@gmail.com"
+                   data-rule="gmail" required>
+            <span class="hint">Must be a @gmail.com address</span>
+            <span class="error-msg" id="err-personalEmail">Enter a valid @gmail.com email address</span>
           </div>
+
+          <!-- Birthday: date picker -->
           <div class="field-group">
             <label>Birthday</label>
             <input name="00NdL000024TKMb" type="date">
@@ -331,19 +337,26 @@ cursor:pointer; font-size:24px;">💬</div>
         </div>
 
         <div class="field-row">
+          <!-- Aadhar: 1234-1234-1234 -->
           <div class="field-group">
             <label>Aadhar Number *</label>
             <input id="aadharInput" name="00NdL000024Tw5K" maxlength="14" type="text"
-                   placeholder="1234-1234-1234" oninput="formatAadhar(this)" required>
+                   placeholder="1234-1234-1234"
+                   oninput="formatAadhar(this)"
+                   data-rule="aadhar" required>
             <span class="hint">Format: 1234-1234-1234</span>
-            <span class="error-msg" id="err-aadhar">Enter a valid Aadhar (1234-1234-1234)</span>
+            <span class="error-msg" id="err-aadharInput">Enter a valid Aadhar (1234-1234-1234)</span>
           </div>
+
+          <!-- PAN: AAAAA0000A -->
           <div class="field-group">
             <label>PAN Card Number *</label>
             <input id="panInput" name="00NdL000024UakH" maxlength="10" type="text"
-                   placeholder="AAAAA0000A" oninput="formatPAN(this)" required>
+                   placeholder="AAAAA0000A"
+                   oninput="formatPAN(this)"
+                   data-rule="pan" required>
             <span class="hint">Format: AAAAA0000A</span>
-            <span class="error-msg" id="err-pan">Enter a valid PAN (e.g. ABCDE1234F)</span>
+            <span class="error-msg" id="err-panInput">Enter a valid PAN (e.g. ABCDE1234F)</span>
           </div>
         </div>
 
@@ -368,10 +381,15 @@ cursor:pointer; font-size:24px;">💬</div>
             <label>Day of Joining *</label>
             <input name="00NdL000024TRW9" type="date" required>
           </div>
+
+          <!-- Company Email: any valid email (company domain) -->
           <div class="field-group">
             <label>Company Email *</label>
-            <input name="00NdL000024Si63" maxlength="80" type="email"
-                   placeholder="john@raptbot.com" required>
+            <input id="companyEmail" name="00NdL000024Si63" maxlength="80" type="text"
+                   placeholder="john@raptbot.com"
+                   data-rule="email" required>
+            <span class="hint">Any valid company email address</span>
+            <span class="error-msg" id="err-companyEmail">Enter a valid email address</span>
           </div>
         </div>
 
@@ -398,28 +416,44 @@ cursor:pointer; font-size:24px;">💬</div>
         <h3>Bank Information</h3>
 
         <div class="field-row">
+          <!-- Account Holder: letters + spaces only -->
           <div class="field-group">
             <label>Account Holder Name *</label>
-            <input name="00NdL000024TStd" maxlength="20" type="text"
-                   placeholder="John Doe" required>
+            <input id="acHolder" name="00NdL000024TStd" maxlength="20" type="text"
+                   placeholder="John Doe"
+                   data-rule="name" required>
+            <span class="error-msg" id="err-acHolder">Name must contain only letters and spaces</span>
           </div>
+
+          <!-- Account Number: digits only, 9–18 digits -->
           <div class="field-group">
             <label>Account Number *</label>
-            <input name="00NdL000024TAaA" type="text"
-                   placeholder="XXXX XXXX XXXX XXXX" required>
+            <input id="acNumber" name="00NdL000024TAaA" type="text"
+                   placeholder="e.g. 123456789012"
+                   data-rule="accountno" required>
+            <span class="hint">9–18 digit bank account number</span>
+            <span class="error-msg" id="err-acNumber">Enter a valid account number (9–18 digits)</span>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label>Bank Name *</label>
-            <input name="00NdL000024Sun8" maxlength="20" type="text"
-                   placeholder="State Bank of India" required>
+            <input id="bankName" name="00NdL000024Sun8" maxlength="20" type="text"
+                   placeholder="State Bank of India"
+                   data-rule="name" required>
+            <span class="error-msg" id="err-bankName">Bank name must contain only letters and spaces</span>
           </div>
+
+          <!-- IFSC: standard Indian IFSC format AAAA0XXXXXX -->
           <div class="field-group">
             <label>IFSC Code *</label>
-            <input name="00NdL000024SoqA" maxlength="20" type="text"
-                   placeholder="SBIN0001234" required>
+            <input id="ifscCode" name="00NdL000024SoqA" maxlength="11" type="text"
+                   placeholder="SBIN0001234"
+                   oninput="this.value = this.value.toUpperCase()"
+                   data-rule="ifsc" required>
+            <span class="hint">Format: SBIN0001234 (4 letters · 0 · 6 alphanumeric)</span>
+            <span class="error-msg" id="err-ifscCode">Enter a valid IFSC code (e.g. SBIN0001234)</span>
           </div>
         </div>
 
@@ -437,24 +471,44 @@ cursor:pointer; font-size:24px;">💬</div>
         <h3>Family Information</h3>
 
         <div class="field-row">
+          <!-- Father Name: letters only -->
           <div class="field-group">
             <label>Father's Name</label>
-            <input name="00NdL000024TZTh" maxlength="20" type="text" placeholder="Robert Doe">
+            <input id="fatherName" name="00NdL000024TZTh" maxlength="20" type="text"
+                   placeholder="Robert Doe"
+                   data-rule="name">
+            <span class="error-msg" id="err-fatherName">Name must contain only letters and spaces</span>
           </div>
+
+          <!-- Father Phone: 10 digits -->
           <div class="field-group">
             <label>Father's Phone</label>
-            <input name="00NdL000024TaO9" maxlength="40" type="tel" placeholder="+91 99999 11111">
+            <input id="fatherPhone" name="00NdL000024TaO9" maxlength="10" type="tel"
+                   placeholder="9876543210"
+                   data-rule="phone">
+            <span class="hint">10-digit mobile number</span>
+            <span class="error-msg" id="err-fatherPhone">Enter a valid 10-digit phone number</span>
           </div>
         </div>
 
         <div class="field-row">
+          <!-- Mother Name: letters only -->
           <div class="field-group">
             <label>Mother's Name</label>
-            <input name="00NdL000024TazF" maxlength="20" type="text" placeholder="Mary Doe">
+            <input id="motherName" name="00NdL000024TazF" maxlength="20" type="text"
+                   placeholder="Mary Doe"
+                   data-rule="name">
+            <span class="error-msg" id="err-motherName">Name must contain only letters and spaces</span>
           </div>
+
+          <!-- Mother Phone: 10 digits -->
           <div class="field-group">
             <label>Mother's Phone</label>
-            <input name="00NdL000024Tc6b" maxlength="40" type="tel" placeholder="+91 99999 22222">
+            <input id="motherPhone" name="00NdL000024Tc6b" maxlength="10" type="tel"
+                   placeholder="9876543210"
+                   data-rule="phone">
+            <span class="hint">10-digit mobile number</span>
+            <span class="error-msg" id="err-motherPhone">Enter a valid 10-digit phone number</span>
           </div>
         </div>
       </div>
@@ -463,27 +517,20 @@ cursor:pointer; font-size:24px;">💬</div>
       <div class="form-nav">
         <button type="button" class="btn-prev" id="prevBtn"
                 onclick="prevStep()" style="display:none;">← Back</button>
-
         <div style="flex:1;"></div>
-
-        <button type="button" class="btn-next" id="nextBtn"
-                onclick="nextStep()">Next →</button>
-
-        <!-- This is a real submit button — triggers native form POST to Salesforce -->
-        <button type="submit" class="btn-submit" id="submitBtn"
-                style="display:none;">✓ Submit to Salesforce</button>
+        <button type="button" class="btn-next" id="nextBtn" onclick="nextStep()">Next →</button>
+        <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">✓ Submit to Salesforce</button>
       </div>
 
     </form>
-    <!-- /form -->
-
   </div>
 </div>
 
 
 <!-- ════════════ JAVASCRIPT ════════════ -->
 <script>
-  /* ── Navigation ── */
+
+  /* ── Site navigation ── */
   function goHome()      { window.location.href = "https://uat.raptbot.com/home/"; }
   function goAbout()     { window.location.href = "https://uat.raptbot.com/about/"; }
   function goServices()  { window.location.href = "https://uat.raptbot.com/services/"; }
@@ -497,44 +544,104 @@ cursor:pointer; font-size:24px;">💬</div>
     c.style.display = c.style.display === "none" ? "block" : "none";
   };
 
-  /* ══════════════════════════════
-     AADHAR formatter  →  1234-1234-1234
-  ══════════════════════════════ */
+  /* ══════════════════════════════════════════
+     VALIDATION RULES
+     Each rule returns true if valid.
+  ══════════════════════════════════════════ */
+  const RULES = {
+
+    // Only letters and spaces (no digits, no special chars)
+    name: v => /^[A-Za-z\s]+$/.test(v.trim()),
+
+    // Exactly 10 digits, no + or spaces
+    phone: v => /^\d{10}$/.test(v.trim()),
+
+    // Must end with @gmail.com (case-insensitive)
+    gmail: v => /^[a-zA-Z0-9._%+\-]+@gmail\.com$/i.test(v.trim()),
+
+    // Any valid email address (for company email)
+    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+
+    // Aadhar: 1234-1234-1234
+    aadhar: v => /^\d{4}-\d{4}-\d{4}$/.test(v.trim()),
+
+    // PAN: AAAAA0000A
+    pan: v => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.trim()),
+
+    // Bank account: 9–18 digits only
+    accountno: v => /^\d{9,18}$/.test(v.trim()),
+
+    // IFSC: 4 letters + 0 + 6 alphanumeric
+    ifsc: v => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v.trim()),
+  };
+
+  /* ── Aadhar live formatter: 1234-1234-1234 ── */
   function formatAadhar(el) {
-    let digits = el.value.replace(/\D/g, "").slice(0, 12);
-    el.value   = digits.replace(/(\d{4})(?=\d)/g, "$1-");
-
-    const valid = /^\d{4}-\d{4}-\d{4}$/.test(el.value);
-    el.classList.toggle("field-error",   !valid && digits.length === 12);
-    el.classList.toggle("field-success",  valid);
-    document.getElementById("err-aadhar").style.display =
-      (!valid && digits.length === 12) ? "block" : "none";
+    let d = el.value.replace(/\D/g, "").slice(0, 12);
+    el.value = d.replace(/(\d{4})(?=\d)/g, "$1-");
+    liveValidate(el);
   }
 
-  /* ══════════════════════════════
-     PAN formatter  →  AAAAA0000A
-  ══════════════════════════════ */
+  /* ── PAN live formatter: uppercase alphanumeric ── */
   function formatPAN(el) {
-    let raw  = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
-    el.value = raw;
-
-    const valid = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(raw);
-    el.classList.toggle("field-error",   !valid && raw.length === 10);
-    el.classList.toggle("field-success",  valid);
-    document.getElementById("err-pan").style.display =
-      (!valid && raw.length === 10) ? "block" : "none";
+    el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+    liveValidate(el);
   }
 
-  /* ══════════════════════════════
+  /* ── Live validate a single field (called on input) ── */
+  function liveValidate(el) {
+    const rule = el.dataset.rule;
+    if (!rule || !el.value.trim()) {
+      // Empty — clear both states, show nothing
+      el.classList.remove("field-error", "field-success");
+      hideErr(el.id);
+      return;
+    }
+    const valid = RULES[rule] ? RULES[rule](el.value) : true;
+    el.classList.toggle("field-error",   !valid);
+    el.classList.toggle("field-success",  valid);
+    if (valid) hideErr(el.id); else showErr(el.id);
+  }
+
+  function showErr(id) {
+    const el = document.getElementById("err-" + id);
+    if (el) el.style.display = "block";
+  }
+  function hideErr(id) {
+    const el = document.getElementById("err-" + id);
+    if (el) el.style.display = "none";
+  }
+
+  /* ── Attach live validation to every ruled input ── */
+  document.querySelectorAll("[data-rule]").forEach(el => {
+    // Skip Aadhar/PAN — they have their own oninput handlers
+    if (el.id === "aadharInput" || el.id === "panInput") return;
+    el.addEventListener("input", () => liveValidate(el));
+  });
+
+  /* Block digits in name fields live */
+  document.querySelectorAll("[data-rule='name']").forEach(el => {
+    el.addEventListener("keypress", e => {
+      if (/[0-9]/.test(e.key)) e.preventDefault();
+    });
+  });
+
+  /* Block non-digits in phone fields live */
+  document.querySelectorAll("[data-rule='phone']").forEach(el => {
+    el.addEventListener("keypress", e => {
+      if (!/[0-9]/.test(e.key)) e.preventDefault();
+    });
+  });
+
+  /* ══════════════════════════════════════════
      MODAL
-  ══════════════════════════════ */
+  ══════════════════════════════════════════ */
   let currentStep = 1;
   const TOTAL = 4;
 
   function openEmployeeModal() {
     currentStep = 1;
     document.getElementById("empForm").reset();
-    // Clear validation highlights
     document.querySelectorAll(".field-error, .field-success").forEach(el =>
       el.classList.remove("field-error", "field-success")
     );
@@ -549,7 +656,6 @@ cursor:pointer; font-size:24px;">💬</div>
     document.body.style.overflow = "";
   }
 
-  /* Close on backdrop click */
   document.getElementById("empModal").addEventListener("click", function(e) {
     if (e.target === this) closeEmployeeModal();
   });
@@ -559,51 +665,41 @@ cursor:pointer; font-size:24px;">💬</div>
       document.getElementById("section" + i).classList.toggle("active", i === currentStep);
       const tab = document.getElementById("tab" + i);
       tab.classList.remove("active", "done");
-      if (i === currentStep)      tab.classList.add("active");
-      else if (i < currentStep)   tab.classList.add("done");
+      if (i === currentStep)    tab.classList.add("active");
+      else if (i < currentStep) tab.classList.add("done");
     }
     document.getElementById("prevBtn").style.display   = currentStep > 1       ? "inline-block" : "none";
     document.getElementById("nextBtn").style.display   = currentStep < TOTAL   ? "inline-block" : "none";
     document.getElementById("submitBtn").style.display = currentStep === TOTAL ? "inline-block" : "none";
   }
 
-  /* Allow jumping back to completed steps only */
   function goToStep(n) {
     if (n < currentStep) { currentStep = n; renderStep(); }
   }
 
-  /* ── Validate required fields in current section ── */
+  /* ── Full section validation ── */
   function validateSection(step) {
-    const section  = document.getElementById("section" + step);
-    const required = section.querySelectorAll("[required]");
+    const section = document.getElementById("section" + step);
     let valid = true;
 
-    required.forEach(el => {
-      el.classList.remove("field-error");
-
+    // 1. Required empty check
+    section.querySelectorAll("[required]").forEach(el => {
       if (!el.value.trim()) {
         el.classList.add("field-error");
+        el.classList.remove("field-success");
         valid = false;
-        return;
       }
+    });
 
-      // Aadhar format
-      if (el.id === "aadharInput") {
-        if (!/^\d{4}-\d{4}-\d{4}$/.test(el.value)) {
-          el.classList.add("field-error");
-          document.getElementById("err-aadhar").style.display = "block";
-          valid = false;
-        }
-      }
-
-      // PAN format
-      if (el.id === "panInput") {
-        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(el.value)) {
-          el.classList.add("field-error");
-          document.getElementById("err-pan").style.display = "block";
-          valid = false;
-        }
-      }
+    // 2. Rule-based checks on ALL ruled fields (required or optional)
+    section.querySelectorAll("[data-rule]").forEach(el => {
+      const rule = el.dataset.rule;
+      if (!el.value.trim()) return; // optional empty = skip format check
+      const ok = RULES[rule] ? RULES[rule](el.value) : true;
+      el.classList.toggle("field-error",   !ok);
+      el.classList.toggle("field-success",  ok);
+      if (!ok) { showErr(el.id); valid = false; }
+      else       hideErr(el.id);
     });
 
     return valid;
@@ -618,24 +714,12 @@ cursor:pointer; font-size:24px;">💬</div>
     if (currentStep > 1) { currentStep--; renderStep(); }
   }
 
-  /* Clear red border on typing */
-  document.getElementById("empForm").addEventListener("input", function(e) {
-    if (e.target.id !== "aadharInput" && e.target.id !== "panInput") {
-      e.target.classList.remove("field-error");
-    }
-  });
-
-  /*
-    handleSubmit() — called by form's onsubmit.
-    Validates last step, then returns TRUE so the browser
-    does a real native POST to Salesforce (exactly like the
-    standalone working form). Salesforce saves the record
-    and redirects back to retURL.
-  */
+  /* Real native POST → Salesforce on submit */
   function handleSubmit() {
-    if (!validateSection(currentStep)) return false; // block submit if invalid
-    return true; // allow native form POST → Salesforce saves the record
+    if (!validateSection(currentStep)) return false;
+    return true;
   }
+
 </script>
 
 </body>
